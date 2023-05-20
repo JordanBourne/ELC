@@ -2,21 +2,25 @@ defmodule Api.FoodTrucksTest do
   use Api.DataCase
 
   alias Api.FoodTrucks
+  import Api.FoodTrucksFixtures
+  import Api.AccountFixtures
+
+  setup do
+    user = user_fixture()
+    food_truck = food_truck_fixture()
+    %{user: user, food_truck: food_truck}
+  end
 
   describe "food_truck" do
     alias Api.FoodTrucks.FoodTruck
 
-    import Api.FoodTrucksFixtures
-
     @invalid_attrs %{x: nil, y: nil, address: nil, applicant: nil, approved: nil, block: nil, blocklot: nil, cnn: nil, dayshours: nil, expiration_date: nil, facility_type: nil, fire_prevention_districs: nil, food_items: nil, latitude: nil, location: nil, locationId: nil, location_description: nil, longitude: nil, lot: nil, neighborhoods: nil, noi_sent: nil, permit: nil, police_districts: nil, prior_permit: nil, received: nil, schedule: nil, status: nil, supervisor_districts: nil, zipcodes: nil}
 
-    test "list_food_truck/0 returns all food_truck" do
-      food_truck = food_truck_fixture()
+    test "list_food_truck/0 returns all food_truck", %{food_truck: food_truck} do
       assert FoodTrucks.list_food_truck() == [food_truck]
     end
 
-    test "get_food_truck!/1 returns the food_truck with given id" do
-      food_truck = food_truck_fixture()
+    test "get_food_truck!/1 returns the food_truck with given id", %{food_truck: food_truck} do
       assert FoodTrucks.get_food_truck!(food_truck.id) == food_truck
     end
 
@@ -110,6 +114,61 @@ defmodule Api.FoodTrucksTest do
     test "change_food_truck/1 returns a food_truck changeset" do
       food_truck = food_truck_fixture()
       assert %Ecto.Changeset{} = FoodTrucks.change_food_truck(food_truck)
+    end
+  end
+
+  describe "food_truck_rating" do
+    alias Api.FoodTrucks.Rating
+
+    import Api.FoodTrucksFixtures
+
+    @invalid_attrs %{rating: nil}
+
+    test "list_food_truck_rating/0 returns all food_truck_rating", %{user: user, food_truck: food_truck} do
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+      assert FoodTrucks.list_food_truck_rating() == [rating]
+    end
+
+    test "get_rating!/1 returns the rating with given id", %{user: user, food_truck: food_truck} do
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+      assert FoodTrucks.get_rating!(rating.id) == rating
+    end
+
+    test "create_rating/1 with valid data creates a rating", %{user: user, food_truck: food_truck} do
+      valid_attrs = %{rating: 4, user_id: user.id, food_truck_id: food_truck.id}
+
+      assert {:ok, %Rating{} = rating} = FoodTrucks.create_rating(valid_attrs)
+      assert rating.rating == 4
+    end
+
+    test "create_rating/1 with invalid data returns error changeset" do
+      invalid_attrs = %{rating: 4, user_id: nil, food_truck_id: nil}
+      assert {:error, %Ecto.Changeset{}} = FoodTrucks.create_rating(invalid_attrs)
+    end
+
+    test "update_rating/2 with valid data updates the rating", %{user: user, food_truck: food_truck} do
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+      update_attrs = %{rating: 3}
+
+      assert {:ok, %Rating{} = rating} = FoodTrucks.update_rating(rating, update_attrs)
+      assert rating.rating == 3
+    end
+
+    test "update_rating/2 with invalid data returns error changeset", %{user: user, food_truck: food_truck} do
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+      assert {:error, %Ecto.Changeset{}} = FoodTrucks.update_rating(rating, @invalid_attrs)
+      assert rating == FoodTrucks.get_rating!(rating.id)
+    end
+
+    test "delete_rating/1 deletes the rating", %{user: user, food_truck: food_truck} do
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+      assert {:ok, %Rating{}} = FoodTrucks.delete_rating(rating)
+      assert_raise Ecto.NoResultsError, fn -> FoodTrucks.get_rating!(rating.id) end
+    end
+
+    test "change_rating/1 returns a rating changeset", %{user: user, food_truck: food_truck} do
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+      assert %Ecto.Changeset{} = FoodTrucks.change_rating(rating)
     end
   end
 end

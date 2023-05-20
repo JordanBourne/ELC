@@ -5,9 +5,29 @@ defmodule ApiWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug Api.Account.Pipeline
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   scope "/api", ApiWeb do
     pipe_through :api
     resources "/food_truck", FoodTruckController, except: [:new, :edit]
+    post "/user", UserController, :create
+    post "/sessions", SessionController, :create
+  end
+
+  # scope "/api", ApiWeb do
+  #   pipe_through [:api, :auth]
+  #   resources "/ratings", RatingController, only: [:index, :create]
+  #   resources "/food_truck", FoodTruckController, only: [:random]
+  # end
+  scope "/api", ApiWeb do
+    pipe_through :api
+    pipe_through :auth
+    resources "/ratings", RatingController, only: [:index, :create]
+    get "/ratings/random", RatingController, :random
+    get "/food_trucks/random", FoodTruckController, :random
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

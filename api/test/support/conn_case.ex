@@ -35,4 +35,10 @@ defmodule ApiWeb.ConnCase do
     Api.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  def authenticate_user(conn, user) do
+    {:ok, jwt, _claims} = Api.Account.Guardian.encode_and_sign(user)
+    conn
+    |> Plug.Conn.put_req_header("authorization", "Bearer #{jwt}")
+  end
 end

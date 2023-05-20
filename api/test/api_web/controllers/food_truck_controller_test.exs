@@ -2,6 +2,7 @@ defmodule ApiWeb.FoodTruckControllerTest do
   use ApiWeb.ConnCase
 
   import Api.FoodTrucksFixtures
+  import Api.AccountFixtures
 
   alias Api.FoodTrucks.FoodTruck
 
@@ -189,8 +190,36 @@ defmodule ApiWeb.FoodTruckControllerTest do
     end
   end
 
+  describe "random unrated food truck" do
+    setup [:create_food_truck, :create_user]
+
+    test "gets a random unrated food truck", %{conn: conn, user: user} do
+      conn = authenticate_user(conn, user)
+      conn = get(conn, ~p"/api/food_trucks/random")
+      assert json_response(conn, 200)["data"]
+    end
+
+    test "returns 404 if every truck is rated", %{conn: conn, food_truck: food_truck, user: user} do
+      rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+
+      conn = authenticate_user(conn, user)
+      conn = get(conn, ~p"/api/food_trucks/random")
+      assert json_response(conn, 404)
+    end
+
+    test "fails with 401 when not authenticated", %{conn: conn} do
+      conn = get(conn, ~p"/api/food_trucks/random")
+      assert json_response(conn, 401)
+    end
+  end
+
   defp create_food_truck(_) do
     food_truck = food_truck_fixture()
     %{food_truck: food_truck}
+  end
+
+  defp create_user(_) do
+    user = user_fixture()
+    %{user: user}
   end
 end

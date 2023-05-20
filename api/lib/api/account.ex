@@ -7,6 +7,8 @@ defmodule Api.Account do
   alias Api.Repo
 
   alias Api.Account.User
+  alias Api.FoodTrucks
+  alias Api.FoodTrucks.Rating
 
   @doc """
   Returns the list of user.
@@ -100,5 +102,37 @@ defmodule Api.Account do
   """
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  def get_user_by_email(email) when is_binary(email) do
+    Repo.get_by(User, email: email)
+  end
+
+  def authenticate_user(email, plain_text_password) do
+    user = get_user_by_email(email)
+    case user do
+      nil -> {:error, :invalid_credentials}
+      _user ->
+        if Bcrypt.verify_pass(plain_text_password, user.password_hash) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
+  end
+
+  def list_ratings_for_user(%User{} = user) do
+    Repo.all(from r in Rating, where: r.user_id == ^user.id, preload: :food_truck)
+  end
+
+  def get_random_rated_food_truck(user) do
+    query = from r in Ecto.assoc(user, :ratings),
+      order_by: fragment("RANDOM()"),
+      limit: 1
+
+    case Repo.one(query) do
+      nil -> :error
+      rating -> {:ok, FoodTrucks.get_food_truck!(rating.food_truck_id)}
+    end
   end
 end
