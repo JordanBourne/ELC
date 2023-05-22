@@ -2,7 +2,19 @@ defmodule ApiWeb.RatingController do
   use ApiWeb, :controller
   alias Api.{FoodTrucks, FoodTrucks.Rating, Account}
 
-  plug ApiWeb.Plugs.AuthenticateUser when action in [:create, :index, :random]
+  plug ApiWeb.Plugs.AuthenticateUser when action in [:create, :index, :random, :update]
+
+  def index(conn, %{"food_truck_id" => food_truck_id}) do
+    current_user = conn.assigns.current_user
+    case Account.get_rating_by_food_truck_id_and_user(current_user, food_truck_id) do
+      nil ->
+        conn
+        |> put_status(404)
+        |> json(%{"error" => "Rating not found"})
+      rating ->
+        render(conn, :show, food_truck_rating: rating)
+    end
+  end
 
   def index(conn, _params) do
     current_user = conn.assigns.current_user
@@ -23,6 +35,27 @@ defmodule ApiWeb.RatingController do
       conn
       |> put_status(:created)
       |> render(:show, food_truck_rating: rating)
+    end
+  end
+
+  def update(conn, %{"id" => id, "rating" => rating_params}) do
+    current_user = conn.assigns.current_user
+    rating = FoodTrucks.get_rating!(id)
+
+    if rating.user_id == current_user.id do
+      case FoodTrucks.update_rating(rating, rating_params) do
+        {:ok, rating} ->
+          render(conn, :show, food_truck_rating: rating)
+        {:error, _changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{"error" => "Unprocessable Entity"})
+      end
+    else
+      conn
+      |> put_status(:forbidden)
+      |> json(%{error: "Unauthorized access"})
+      |> halt()
     end
   end
 

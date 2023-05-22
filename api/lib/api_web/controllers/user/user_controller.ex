@@ -8,9 +8,10 @@ defmodule ApiWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Account.create_user(user_params) do
-      conn
-      |> put_status(:created)
-      |> render(:show, user: user)
+      {:ok, jwt, _full_claims} = Api.Account.Guardian.encode_and_sign(user)
+        conn
+        |> put_status(:created)
+        |> json(%{token: jwt})
     end
   end
 end

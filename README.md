@@ -2,7 +2,7 @@
 
 ## Overview
 
-The goal of this project is to allow you to track which food trucks you have already been to, what your rating was for them, and to include a random discovery of new locations or a suggestion for one you have previously enjoyed.
+The goal of this project is to allow you to track which food trucks you have already been to, what your rating was for them, and to include a random discovery of new locations or a suggestion for one you have previously rated.
 
 ## Process
 
@@ -48,3 +48,25 @@ The last piece of the API was to add the functionality for the random discovery 
 
 With all of this in place and the tests to verify the functionality, the API portion is complete and the next step is to build out the corresponding UI.
 
+### Front End
+
+The front end for this application is a lightweight React app with just a few pages for the necessary functionality. I will also be using the following for this project:
+
+ * Typescript for the type safety and to make the contracts with the API and components more explicit
+ * MaterialUI for the component library for easy standardized components to speed up the process
+ * react-router-dom for routing
+ * axios for the REST client
+
+With more time to work on the project I'd use something like Redux to help manage the state in the front end, most notably to be able to store the results of the API calls so something like fetching all food trucks doesn't require a new call every time the table is being loaded.
+
+The rest of the front end is fairly straightforward. Some other high levels decisions were to organize the directory into the following:
+
+```
+├── src/
+│   ├── components/  // Reusable React Components
+│   ├── hooks/  // Custom React Hooks
+│   ├── pages/  // One file for each route, each representing a page in the app
+│   ├── apiClient.ts  // Reusable api client. This could go in a util/ directory later if there were more utils
+│   ├── index.css  // Base component/style file
+│   ├── index.tsx  // Base component/style file
+```

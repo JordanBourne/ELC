@@ -20,12 +20,23 @@ defmodule ApiWeb.RatingJSON do
     FoodTruckJSON.show(%{food_truck: food_truck})
   end
 
+  defp data(%Rating{food_truck: %Ecto.Association.NotLoaded{}} = rating) do
+    %{
+      id: rating.id,
+      rating: rating.rating,
+      user_id: rating.user_id,
+      food_truck_id: rating.food_truck_id,
+      food_truck: nil
+    }
+  end
+
   defp data(%Rating{} = rating) do
     %{
       id: rating.id,
       rating: rating.rating,
       user_id: rating.user_id,
-      food_truck_id: rating.food_truck_id
+      food_truck_id: rating.food_truck_id,
+      food_truck: FoodTruckJSON.show(%{food_truck: rating.food_truck}).data
     }
   end
 end

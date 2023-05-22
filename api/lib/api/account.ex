@@ -135,4 +135,10 @@ defmodule Api.Account do
       rating -> {:ok, FoodTrucks.get_food_truck!(rating.food_truck_id)}
     end
   end
+
+  def get_rating_by_food_truck_id_and_user(%User{} = user, food_truck_id) do
+    from(r in Rating, where: r.user_id == ^user.id and r.food_truck_id == ^food_truck_id)
+    |> Repo.one()
+    |> Repo.preload(:food_truck)
+  end
 end

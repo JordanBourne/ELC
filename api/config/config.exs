@@ -13,6 +13,7 @@ config :api,
 # Configures the endpoint
 config :api, ApiWeb.Endpoint,
   url: [host: "localhost"],
+  corsica: [{:origins, "http://localhost:3000"}],
   render_errors: [
     formats: [json: ApiWeb.ErrorJSON],
     layout: false

@@ -8,9 +8,9 @@ defmodule ApiWeb.UserControllerTest do
 
   test "create user", %{conn: conn} do
     conn = post(conn, ~p"/api/user", user: @create_attrs)
-    assert %{"data" => user_response} = json_response(conn, 201)
+    assert %{"token" => _jwt_response} = json_response(conn, 201)
 
-    user = Account.get_user_by_email(user_response["email"])
+    user = Account.get_user_by_email(@create_attrs.email)
     assert user.email == @create_attrs[:email]
   end
 

@@ -195,7 +195,7 @@ defmodule ApiWeb.FoodTruckControllerTest do
 
     test "gets a random unrated food truck", %{conn: conn, user: user} do
       conn = authenticate_user(conn, user)
-      conn = get(conn, ~p"/api/food_trucks/random")
+      conn = get(conn, ~p"/api/food_truck/random")
       assert json_response(conn, 200)["data"]
     end
 
@@ -203,12 +203,12 @@ defmodule ApiWeb.FoodTruckControllerTest do
       rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
 
       conn = authenticate_user(conn, user)
-      conn = get(conn, ~p"/api/food_trucks/random")
+      conn = get(conn, ~p"/api/food_truck/random")
       assert json_response(conn, 404)
     end
 
     test "fails with 401 when not authenticated", %{conn: conn} do
-      conn = get(conn, ~p"/api/food_trucks/random")
+      conn = get(conn, ~p"/api/food_truck/random")
       assert json_response(conn, 401)
     end
   end

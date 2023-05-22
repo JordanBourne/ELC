@@ -7,6 +7,7 @@ defmodule Api.AccountTest do
     alias Api.Account.User
 
     import Api.AccountFixtures
+    import Api.FoodTrucksFixtures
 
     @invalid_attrs %{email: nil, name: nil, password: nil}
 
@@ -73,6 +74,22 @@ defmodule Api.AccountTest do
     test "change_user/1 returns a user changeset" do
       user = user_fixture()
       assert %Ecto.Changeset{} = Account.change_user(user)
+    end
+
+    test "get_rating_by_food_truck_id_and_user/2 fetches a rating by the user and food truck id" do
+      user = user_fixture()
+      food_truck = food_truck_fixture()
+      rating = rating_fixture(%{user_id: user.id, food_truck_id: food_truck.id})
+        |> Repo.preload(:food_truck)
+
+      assert rating == Account.get_rating_by_food_truck_id_and_user(user, food_truck.id)
+    end
+
+    test "get_rating_by_food_truck_id_and_user/2 returns nil when rating doesnt exist" do
+      user = user_fixture()
+      food_truck = food_truck_fixture()
+
+      assert nil == Account.get_rating_by_food_truck_id_and_user(user, food_truck.id)
     end
   end
 end
